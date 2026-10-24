@@ -41,6 +41,22 @@ class ReservaService
     }
 
     /**
+     * Obtiene los eventos por el ID de la reserva
+     * @param int $id ID de la reserva
+     * @return array Array con los datos de los eventos
+     */
+    public function obtenerEventosPorIdReserva(int $id): array
+    {
+        $eventos = $this->repository->obtenerEventosPorReserva($id);
+
+        if (!$eventos) {
+            throw new \InvalidArgumentException("No se ha encontrado ningun evento con el ID proporcionado.");
+        }
+
+        return $eventos;
+    }
+
+    /**
      * Comprueba de forma estricta la coherencia, formato y vigencia de las fechas.
      * @param string $fecEntrada Fecha de entrada (Y-m-d)
      * @param string $fecSalida Fecha de salida (Y-m-d)

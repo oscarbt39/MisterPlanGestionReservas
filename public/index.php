@@ -38,12 +38,16 @@ if ($requestUri === '/' && $method === 'GET') {
 } elseif ($requestUri === '/reservas/detalle' && $method === 'GET') {
     $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
     
-    // Asumiendo que tu servicio tiene un método para obtener la reserva con sus eventos
+    // 1. Obtiene los datos principales de la reserva
     $reserva = $service->obtenerReservaPorId($id); 
+    
+    // 2. Obtiene el timeline de eventos asociado a esta reserva
+    $eventos = $service->obtenerEventosPorIdReserva($id);
     
     header('Content-Type: text/html; charset=UTF-8');
     View::render('reservas/detalle.twig', [
-        'reserva' => $reserva
+        'reserva' => $reserva,
+        'eventos' => $eventos 
     ]);
     exit;
 }

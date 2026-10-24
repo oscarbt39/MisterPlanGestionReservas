@@ -62,6 +62,19 @@ class ReservaRepository
     }
 
     /**
+     * Obtiene todos los eventos relacionados a una reserva, cambios de estado y creacion
+     * @param int $idReserva Integer con el identificador a buscar 
+     * @return array $result Array con el resultado de la consulta
+     */
+    public function obtenerEventosPorReserva(int $idReserva): array
+    {
+        $db = Database::getConnection();
+        $stmt = $db->prepare("SELECT * FROM RESERVA_EVENTO WHERE ID_RESERVA = :id ORDER BY FEC_CREACION ASC");
+        $stmt->execute([':id' => $idReserva]);
+        return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
      * Inserta un nuevo evento de reserva, parametrizado para evitar SQL injection
      * @param int $idReserva Integer con el ID de la reserva
      * @param string $tipo String con el tipo de la reserva

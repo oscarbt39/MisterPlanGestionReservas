@@ -85,15 +85,15 @@
             </div>
             <div class="card-body">
                 <div id="timeline-container">
-                    {% if reserva.eventos is not empty %}
+                    {% if eventos is not empty %}
                         <div class="timeline position-relative ps-4 py-2" style="border-left: 2px solid #dee2e6;">
-                            {% for evento in reserva.eventos %}
+                            {% for evento in eventos %}
                                 <div class="timeline-item position-relative mb-4">
                                     <span class="position-absolute bg-success rounded-circle" style="width: 12px; height: 12px; left: -23px; top: 4px; border: 2px solid #fff;"></span>
                                     
                                     <div class="d-flex justify-content-between align-items-center mb-1">
-                                        <h6 class="fw-bold mb-0 text-dark">{{ evento.TIPO_EVENTO | default('Cambio de Estado') }}</h6>
-                                        <small class="text-muted">{{ evento.FECHA_EVENTO }}</small>
+                                        <h6 class="fw-bold mb-0 text-dark">{{ evento.TIPO | default('Cambio de Estado') }}</h6>
+                                        <small class="text-muted">{{ evento.FEC_EVENTO }}</small>
                                     </div>
                                     <p class="text-muted small mb-0">{{ evento.DESCRIPCION | default('Actualización de la reserva.') }}</p>
                                 </div>
@@ -132,7 +132,6 @@ async function actualizarEstado(reservaId) {
             body: JSON.stringify({ estado: nuevoEstado })
         });
 
-        // Intentamos parsear la respuesta como JSON
         let data;
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
