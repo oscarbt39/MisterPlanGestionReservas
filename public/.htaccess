@@ -1,0 +1,5 @@
+RewriteEngine On
+# Si la petición no es un archivo o directorio real, la manda a index.php
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
