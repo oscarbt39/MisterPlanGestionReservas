@@ -1,0 +1,160 @@
+{% extends 'base.twig' %}
+
+{% block title %}Detalle de Reserva #{{ reserva.ID_RESERVA }} - MisterPlan{% endblock %}
+
+{% block content %}
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <a href="/" class="btn btn-outline-secondary btn-sm">&larr; Volver al listado</a>
+</div>
+
+<div class="row">
+    <!-- INFORMACIÓN GENERAL DE LA RESERVA -->
+    <div class="col-md-5 mb-4">
+        <div class="card shadow-sm mb-4">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold text-dark">📋 Datos de la Reserva #{{ reserva.ID_RESERVA }}</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group list-group-flush mb-3">
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Huésped:</span>
+                        <span class="fw-semibold">{{ reserva.NOMBRE_HUESPED }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Email:</span>
+                        <span>{{ reserva.EMAIL_HUESPED }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Alojamiento:</span>
+                        <span class="fw-semibold">{{ reserva.NOM_ALOJAMIENTO }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Entrada / Salida:</span>
+                        <span>{{ reserva.FEC_ENTRADA }} al {{ reserva.FEC_SALIDA }}</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Importe Total:</span>
+                        <span class="fw-bold text-success">{{ reserva.IMPORTE }} €</span>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0">
+                        <span class="text-muted">Creada el:</span>
+                        <span>{{ reserva.FEC_CREACION | default('No especificada') }}</span>
+                    </li>
+                    <li class="list-group-item px-0">
+                        <span class="text-muted d-block mb-1">Descripción / Observaciones:</span>
+                        <p class="small text-dark bg-light p-2 rounded mb-0">{{ reserva.NOTAS | default('Sin descripción adicional.') }}</p>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between px-0 align-items-center mt-2">
+                        <span class="text-muted">Estado Actual:</span>
+                        <span id="badge-estado">
+                            {% if reserva.ESTADO == 'confirmada' %}
+                                <span class="badge bg-success">Confirmada</span>
+                            {% elseif reserva.ESTADO == 'pendiente' %}
+                                <span class="badge bg-warning text-dark">Pendiente</span>
+                            {% else %}
+                                <span class="badge bg-danger">Cancelada</span>
+                            {% endif %}
+                        </span>
+                    </li>
+                </ul>
+
+                <!-- SECCIÓN PARA CAMBIAR EL ESTADO -->
+                <div class="p-3 bg-light rounded border">
+                    <label for="select-estado" class="form-label small fw-bold text-secondary">Cambiar Estado</label>
+                    <div class="input-group">
+                        <select id="select-estado" class="form-select form-select-sm">
+                            <option value="pendiente" {% if reserva.ESTADO == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                            <option value="confirmada" {% if reserva.ESTADO == 'confirmada' %}selected{% endif %}>Confirmada</option>
+                            <option value="cancelada" {% if reserva.ESTADO == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                        </select>
+                        <button id="btn-cambiar-estado" class="btn btn-emerald btn-sm" onclick="actualizarEstado({{ reserva.ID_RESERVA }})">
+                            Actualizar
+                        </button>
+                    </div>
+                    <div id="msg-feedback" class="form-text mt-2 small"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- TIMELINE DE HISTORIAL DE EVENTOS -->
+    <div class="col-md-7 mb-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white py-3">
+                <h5 class="mb-0 fw-bold text-dark">⏱️ Historial de Eventos (Trazabilidad)</h5>
+            </div>
+            <div class="card-body">
+                <div id="timeline-container">
+                    {% if reserva.eventos is not empty %}
+                        <div class="timeline position-relative ps-4 py-2" style="border-left: 2px solid #dee2e6;">
+                            {% for evento in reserva.eventos %}
+                                <div class="timeline-item position-relative mb-4">
+                                    <span class="position-absolute bg-success rounded-circle" style="width: 12px; height: 12px; left: -23px; top: 4px; border: 2px solid #fff;"></span>
+                                    
+                                    <div class="d-flex justify-content-between align-items-center mb-1">
+                                        <h6 class="fw-bold mb-0 text-dark">{{ evento.TIPO_EVENTO | default('Cambio de Estado') }}</h6>
+                                        <small class="text-muted">{{ evento.FECHA_EVENTO }}</small>
+                                    </div>
+                                    <p class="text-muted small mb-0">{{ evento.DESCRIPCION | default('Actualización de la reserva.') }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-5 text-muted">
+                            <p class="mb-0">No hay eventos registrados en el historial para esta reserva.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block javascripts %}
+<script>
+async function actualizarEstado(reservaId) {
+    const nuevoEstado = document.getElementById('select-estado').value;
+    const feedback = document.getElementById('msg-feedback');
+    const btn = document.getElementById('btn-cambiar-estado');
+
+    btn.disabled = true;
+    feedback.className = 'form-text mt-2 small text-muted';
+    feedback.innerText = 'Actualizando...';
+
+    try {
+        const response = await fetch(`/api/reservas/estado?id=${reservaId}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ estado: nuevoEstado })
+        });
+
+        // Intentamos parsear la respuesta como JSON
+        let data;
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+            data = await response.json();
+        } else {
+            data = { success: response.ok, message: await response.text() };
+        }
+
+        if (response.ok && (data.success !== false)) {
+            feedback.className = 'form-text mt-2 small text-success fw-bold';
+            feedback.innerText = '¡Actualizado en BBDD! Recargando...';
+            setTimeout(() => location.reload(), 800);
+        } else {
+            feedback.className = 'form-text mt-2 small text-danger';
+            feedback.innerText = data.error || data.message || 'El servidor no pudo actualizar el registro.';
+            btn.disabled = false;
+        }
+    } catch (err) {
+        feedback.className = 'form-text mt-2 small text-danger';
+        feedback.innerText = 'Error de red al conectar con el endpoint API.';
+        btn.disabled = false;
+    }
+}
+</script>
+{% endblock %}

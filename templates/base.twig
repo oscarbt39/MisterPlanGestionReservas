@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Gestión de Reservas{% endblock %}</title>
+    
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/css/bootstrap.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <style>
+        /* Paleta corporativa personalizada */
+        :root {
+            --color-bg: #f8f9fa;
+            --color-card: #ffffff;
+            --color-primary: #2d6a4f;      /* Verde esmeralda oscuro */
+            --color-primary-hover: #1b4332;
+            --color-dark: #212529;         /* Gris oscuro sobrio */
+        }
+
+        body {
+            background-color: var(--color-bg);
+            color: #333333;
+        }
+
+        /* Navbar personalizada en gris oscuro con borde verde esmeralda */
+        .custom-navbar {
+            background-color: var(--color-dark) !important;
+            border-bottom: 3px solid var(--color-primary);
+        }
+
+        /* Botón verde esmeralda personalizado */
+        .btn-emerald {
+            background-color: var(--color-primary);
+            color: #ffffff;
+            border: none;
+        }
+        .btn-emerald:hover {
+            background-color: var(--color-primary-hover);
+            color: #ffffff;
+        }
+
+        /* Cabecera de tabla en gris neutro  */
+        .table-custom-header, 
+        .table-custom-header th {
+            background-color: #2c3034 !important;
+            color: #ffffff !important;
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar navbar-dark custom-navbar mb-4">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/">MisterPlan - Reservas</a>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% block javascripts %}{% endblock %}
+
+    <!-- Bootstrap JS Bundle -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.2/js/bootstrap.bundle.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+</body>
+</html>

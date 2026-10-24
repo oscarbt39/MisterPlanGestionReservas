@@ -1,0 +1,255 @@
+{% extends 'base.twig' %}
+
+{% block title %}Listado de Reservas - MisterPlan{% endblock %}
+
+{% block content %}
+<div class="row mb-4 align-items-center">
+    <div class="col">
+        <h1 class="h3 mb-0 text-gray-800">📋 Gestión de Reservas</h1>
+    </div>
+    <div class="col text-end">
+        <!-- Botón principal en verde esmeralda corporativo -->
+        <a href="#" class="btn btn-emerald" data-bs-toggle="modal" data-bs-target="#modalCrearReserva">+ Nueva Reserva</a>
+    </div>
+</div>
+
+<!-- TARJETA DE FILTROS COMBINADOS -->
+<div class="card shadow-sm mb-4">
+    <div class="card-body bg-white">
+        <form method="GET" action="/" class="row g-3">
+            <div class="col-md-3">
+                <label for="nombre" class="form-label small fw-bold text-secondary">Huésped</label>
+                <input type="text" class="form-control form-control-sm" id="nombre" name="nombre" value="{{ filtros.nombre }}" placeholder="Nombre del huésped...">
+            </div>
+            <div class="col-md-2">
+                <label for="estado" class="form-label small fw-bold text-secondary">Estado</label>
+                <select class="form-select form-select-sm" id="estado" name="estado">
+                    <option value="">Todos</option>
+                    <option value="pendiente" {% if filtros.estado == 'pendiente' %}selected{% endif %}>Pendiente</option>
+                    <option value="confirmada" {% if filtros.estado == 'confirmada' %}selected{% endif %}>Confirmada</option>
+                    <option value="cancelada" {% if filtros.estado == 'cancelada' %}selected{% endif %}>Cancelada</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label for="desde" class="form-label small fw-bold text-secondary">Desde</label>
+                <input type="date" class="form-control form-control-sm" id="desde" name="desde" value="{{ filtros.desde }}">
+            </div>
+            <div class="col-md-2">
+                <label for="hasta" class="form-label small fw-bold text-secondary">Hasta</label>
+                <input type="date" class="form-control form-control-sm" id="hasta" name="hasta" value="{{ filtros.hasta }}">
+            </div>
+            <div class="col-md-3 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-dark btn-sm w-100">Filtrar</button>
+                <a href="/" class="btn btn-outline-secondary btn-sm">Limpiar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- TABLA DE RESERVAS -->
+<div class="card shadow-sm">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-custom-header">
+                    <tr>
+                        <th class="py-3 ps-3">ID</th>
+                        <th class="py-3">Huésped</th>
+                        <th class="py-3">Alojamiento</th>
+                        <th class="py-3">Entrada</th>
+                        <th class="py-3">Salida</th>
+                        <th class="py-3">Estado</th>
+                        <th class="py-3 text-end">Importe</th>
+                        <th class="py-3 text-center pe-3">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for reserva in reservas %}
+                        <tr>
+                            <td class="fw-bold ps-3">#{{ reserva.ID_RESERVA }}</td>
+                            <td>
+                                <div class="fw-semibold">{{ reserva.NOMBRE_HUESPED }}</div>
+                                <small class="text-muted">{{ reserva.EMAIL_HUESPED }}</small>
+                            </td>
+                            <td>{{ reserva.NOM_ALOJAMIENTO }}</td>
+                            <td>{{ reserva.FEC_ENTRADA }}</td>
+                            <td>{{ reserva.FEC_SALIDA }}</td>
+                            <td>
+                                {% if reserva.ESTADO == 'confirmada' %}
+                                    <span class="badge bg-success">Confirmada</span>
+                                {% elseif reserva.ESTADO == 'pendiente' %}
+                                    <span class="badge bg-warning text-dark">Pendiente</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Cancelada</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end fw-bold">{{ reserva.IMPORTE }} €</td>
+                            <td class="text-center pe-3">
+                                <!-- Botón de detalle sutil acorde a la escala de grises -->
+                                <a href="/reservas/detalle?id={{ reserva.ID_RESERVA }}" class="btn btn-sm btn-outline-dark" title="Ver detalle">Ver</a>
+                            </td>
+                        </tr>
+                    {% else %}
+                        <tr>
+                            <td colspan="8" class="text-center py-5 text-muted">No se encontraron reservas con los filtros seleccionados.</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+<!-- MODAL NUEVA RESERVA -->
+<div class="modal fade" id="modalCrearReserva" tabindex="-1" aria-labelledby="modalCrearReservaLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="modalCrearReservaLabel">📋 Registrar Nueva Reserva</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formNuevaReserva">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="nombre_huesped" class="form-label small fw-bold">Nombre del Huésped</label>
+                            <input type="text" class="form-control form-control-sm" id="nombre_huesped" required placeholder="Ej. Ana Teston">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="email_huesped" class="form-label small fw-bold">Email</label>
+                            <input type="email" class="form-control form-control-sm" id="email_huesped" required placeholder="ana@example.com">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="nom_alojamiento" class="form-label small fw-bold">Alojamiento</label>
+                            <input type="text" class="form-control form-control-sm" id="nom_alojamiento" required placeholder="Ej. Suite Vista Mar">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="importe" class="form-label small fw-bold">Importe (€)</label>
+                            <input type="number" step="0.01" class="form-control form-control-sm" id="importe" required placeholder="150.00">
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fec_entrada" class="form-label small fw-bold">Fecha de Entrada</label>
+                            <input type="date" class="form-control form-control-sm" id="fec_entrada" required>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="fec_salida" class="form-label small fw-bold">Fecha de Salida</label>
+                            <input type="date" class="form-control form-control-sm" id="fec_salida" required>
+                        </div>
+                        <div class="col-12">
+                            <label for="descripcion" class="form-label small fw-bold">Descripción / Observaciones</label>
+                            <textarea class="form-control form-control-sm" id="descripcion" rows="3" placeholder="Peticiones especiales del huésped..."></textarea>
+                        </div>
+                    </div>
+                    <div id="modal-feedback" class="mt-3 small"></div>
+                </form>
+            </div>
+            <div class="modal-footer bg-light">
+                <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-emerald btn-sm" onclick="crearReserva()">Guardar Reserva</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+async function crearReserva() {
+    const feedback = document.getElementById('modal-feedback');
+    
+    // 1. Recoge los valores
+    const nombre = document.getElementById('nombre_huesped').value.trim();
+    const email = document.getElementById('email_huesped').value.trim();
+    const alojamiento = document.getElementById('nom_alojamiento').value.trim();
+    const importe = document.getElementById('importe').value.trim();
+    const fecEntrada = document.getElementById('fec_entrada').value;
+    const fecSalida = document.getElementById('fec_salida').value;
+    const descripcion = document.getElementById('descripcion').value.trim();
+
+    // 2. Validaciones en Frontend
+    // Validar campos vacíos o caracteres sueltos (ej. solo una barra "/")
+    const patronCaracteresSolos = /^[\/\-\_\.\s]+$/;
+    if (!nombre || patronCaracteresSolos.test(nombre) || nombre.length < 2) {
+        mostrarError(feedback, 'El nombre del huésped no es válido.');
+        return;
+    }
+
+    // Validar email con @ y formato básico
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regexEmail.test(email)) {
+        mostrarError(feedback, 'Introduce un correo electrónico válido (debe incluir "@").');
+        return;
+    }
+
+    if (!alojamiento || patronCaracteresSolos.test(alojamiento)) {
+        mostrarError(feedback, 'El nombre del alojamiento es obligatorio.');
+        return;
+    }
+
+    if (!importe || isNaN(importe) || parseFloat(importe) <= 0) {
+        mostrarError(feedback, 'El importe debe ser un número mayor a 0.');
+        return;
+    }
+
+    // Validar fechas lógicas
+    if (!fecEntrada || !fecSalida) {
+        mostrarError(feedback, 'Las fechas de entrada y salida son obligatorias.');
+        return;
+    }
+
+    const hoy = new Date().toISOString().split('T')[0];
+    if (fecEntrada < hoy) {
+        mostrarError(feedback, 'La fecha de entrada no puede ser anterior a hoy.');
+        return;
+    }
+
+    if (fecEntrada >= fecSalida) {
+        mostrarError(feedback, 'La fecha de salida debe ser posterior a la fecha de entrada.');
+        return;
+    }
+
+    // 3. Si todo va bien, envia con fetch
+    const payload = {
+    nombre_huesped: nombre,
+    email: email,             
+    alojamiento: alojamiento, 
+    fec_entrada: fecEntrada,
+    fec_salida: fecSalida,
+    importe: parseFloat(importe),
+    notas: descripcion,       
+    estado: 'pendiente'
+};
+
+    feedback.className = 'mt-3 small text-muted';
+    feedback.innerText = 'Guardando reserva...';
+
+    try {
+        const response = await fetch('/api/reservas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await response.json();
+
+        if (response.ok && (data.success !== false)) {
+            feedback.className = 'mt-3 small text-success fw-bold';
+            feedback.innerText = '¡Reserva creada con éxito! Actualizando...';
+            setTimeout(() => location.reload(), 900);
+        } else {
+            feedback.className = 'mt-3 small text-danger';
+            feedback.innerText = data.error || 'Error al procesar la reserva en el servidor.';
+        }
+    } catch (err) {
+        feedback.className = 'mt-3 small text-danger';
+        feedback.innerText = 'Error de red al conectar con el servidor.';
+    }
+}
+
+// Función auxiliar para pintar los errores de forma limpia
+function mostrarError(elementoFeedback, mensaje) {
+    elementoFeedback.className = 'mt-3 small text-danger fw-semibold';
+    elementoFeedback.innerText = '⚠️ ' + mensaje;
+}
+</script>
+{% endblock %}
+
