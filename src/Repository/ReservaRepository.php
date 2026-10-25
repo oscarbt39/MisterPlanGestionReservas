@@ -136,6 +136,13 @@ class ReservaRepository
         $sqlStatement = $db->prepare($sqlQuery);
         $sqlStatement->execute([':nuevoEstado' => $nuevoEstado, ":id" => $idUpd]);
 
+        $sqlEventQuery = "INSERT INTO RESERVA_EVENTO (ID_RESERVA, TIPO, DESCRIPCION, FEC_CREACION) VALUES (:reserva_id, :tipo, :descripcion, NOW())";
+        $sqlEventStatement = $db->prepare($sqlEventQuery);
+        $sqlEventStatement->execute([
+            ':reserva_id' => $idUpd,
+            ':tipo' => 'CAMBIO_ESTADO',
+            ':descripcion' => "Estado cambiado a: " . $nuevoEstado
+        ]);
 
         return true;
     }

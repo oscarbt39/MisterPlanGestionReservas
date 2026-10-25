@@ -1,6 +1,6 @@
 # 🏨 MisterPlan - Gestor de Reservas (PHP Nativo)
 
-Prueba técnica desarrollada en **PHP nativo**, **Docker**, **MySQL** y **Vanilla JS / Bootstrap**, implementando una arquitectura limpia en capas, API REST y un sistema de trazabilidad por eventos (Timeline).
+Prueba técnica desarrollada en **PHP nativo**, **Docker**, **MySQL** y **Vanilla JS / Bootstrap**, empleando **Clever Cloud** para la BBDD y **Render** para el despliegue orquestado, implementando una arquitectura limpia en capas, API REST y un sistema de trazabilidad por eventos (Timeline).
 
 ---
 
@@ -17,6 +17,14 @@ Prueba técnica desarrollada en **PHP nativo**, **Docker**, **MySQL** y **Vanill
 Asegúrate de tener instalado en tu equipo:
 * [Docker](https://www.docker.com/)
 * [Docker Compose](https://docs.docker.com/compose/)
+
+---
+
+### 🚀 Despliegue en Vivo
+
+Puedes acceder a la aplicación funcionando en producción a través del siguiente enlace:
+
+* **URL de la App:** [https://misterplangestionreservas.onrender.com/](https://misterplangestionreservas.onrender.com/)
 
 ---
 
