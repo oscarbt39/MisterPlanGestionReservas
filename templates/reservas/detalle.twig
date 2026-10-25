@@ -118,6 +118,14 @@ async function actualizarEstado(reservaId) {
     const feedback = document.getElementById('msg-feedback');
     const btn = document.getElementById('btn-cambiar-estado');
 
+    // Validación defensiva en cliente antes de realizar la petición HTTP
+    const estadosValidos = ['pendiente', 'confirmada', 'cancelada'];
+    if (!estadosValidos.includes(nuevoEstado.toLowerCase())) {
+        feedback.className = 'form-text mt-2 small text-danger';
+        feedback.innerText = 'El estado seleccionado no es válido.';
+        return;
+    }
+
     btn.disabled = true;
     feedback.className = 'form-text mt-2 small text-muted';
     feedback.innerText = 'Actualizando...';
@@ -132,26 +140,27 @@ async function actualizarEstado(reservaId) {
             body: JSON.stringify({ estado: nuevoEstado })
         });
 
-        let data;
+        let data = {};
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
             data = await response.json();
-        } else {
-            data = { success: response.ok, message: await response.text() };
         }
 
-        if (response.ok && (data.success !== false)) {
+        // Comprobación estricta de éxito HTTP 2xx y flag interno
+        if (response.ok && data.success !== false) {
             feedback.className = 'form-text mt-2 small text-success fw-bold';
-            feedback.innerText = '¡Actualizado en BBDD! Recargando...';
+            feedback.innerText = '¡Estado actualizado correctamente! Recargando...';
             setTimeout(() => location.reload(), 800);
         } else {
+            // Mensaje sanitizado sin exponer excepciones internas de BBDD
+            const errorMsg = data.error || data.message || 'No se pudo actualizar el estado de la reserva.';
             feedback.className = 'form-text mt-2 small text-danger';
-            feedback.innerText = data.error || data.message || 'El servidor no pudo actualizar el registro.';
+            feedback.innerText = errorMsg;
             btn.disabled = false;
         }
     } catch (err) {
         feedback.className = 'form-text mt-2 small text-danger';
-        feedback.innerText = 'Error de red al conectar con el endpoint API.';
+        feedback.innerText = 'Error de conexión con el servidor.';
         btn.disabled = false;
     }
 }
